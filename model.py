@@ -42,6 +42,7 @@ class WGAN():
 			# Returns a list of gradients in self.d_param, mean gradient of examples in batch
 				# Need index to calculate norm
             self.gradient = tf.gradients(tf.reduce_mean(self.discriminator(self.penalty_point, reuse=True)), self.d_param)[0] 
+            self.gradient = tf.gradients(tf.reduce_mean(self.discriminator(self.penalty_point, reuse=True)), self.d_param) # Returns a list of gradients in self.d_param, mean gradient of examples in batch
             self.gradient_norm = tf.sqrt(tf.reduce_sum(tf.square(self.gradient)))
             self.discriminator_loss = tf.reduce_mean(self.discriminator_fake - self.discriminator_real) + self.args.penalty_hyperparam * (self.gradient_norm - 1)
 
