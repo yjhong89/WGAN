@@ -39,12 +39,12 @@ class WGAN():
             epsilon = np.random.uniform(0,1, [self.args.batch_size, 1])
             penalty_point = self.real_images * self.epsilon + self.g * (1 - self.epsilon) # [batch, 64, 64, 3]
 
-			# Returns a list of gradients in self.d_param, mean gradient of examples in batch
-			# Need index to calculate norm
+            # Returns a list of gradients in self.d_param, mean gradient of examples in batch
+            # Need index to calculate norm
             gradient = tf.gradients(self.discriminator(self.penalty_point, reuse=True), self.d_param)[0] 
             gradient_norm = tf.sqrt(tf.reduce_sum(tf.square(self.gradient), axis=[1,2,3]))
-			# Expectation over batches
-			gradient_penalty = tf.reduce_mean(tf.square(gradient_norm - 1))
+            # Expectation over batches
+            gradient_penalty = tf.reduce_mean(tf.square(gradient_norm - 1))
             self.discriminator_loss = tf.reduce_mean(self.discriminator_fake - self.discriminator_real) + self.args.penalty_hyperparam * gradient_penalty
 
         else:
