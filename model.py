@@ -36,14 +36,16 @@ class WGAN():
             print(v.op.name)
 
         if self.args.improved:
-            self.epsilon = np.random.uniform(0,1, [self.args.batch_size, 1])
-            self.penalty_point = self.real_images * self.epsilon + self.g * (1 - self.epsilon) # [batch, 64, 64, 3]
+            epsilon = np.random.uniform(0,1, [self.args.batch_size, 1])
+            penalty_point = self.real_images * self.epsilon + self.g * (1 - self.epsilon) # [batch, 64, 64, 3]
 
 			# Returns a list of gradients in self.d_param, mean gradient of examples in batch
 			# Need index to calculate norm
-            self.gradient = tf.gradients(tf.reduce_mean(self.discriminator(self.penalty_point, reuse=True)), self.d_param)[0] 
-            self.gradient_norm = tf.sqrt(tf.reduce_sum(tf.square(self.gradient)))
-            self.discriminator_loss = tf.reduce_mean(self.discriminator_fake - self.discriminator_real) + self.args.penalty_hyperparam * (self.gradient_norm - 1)
+            gradient = tf.gradients(self.discriminator(self.penalty_point, reuse=True), self.d_param)[0] 
+            gradient_norm = tf.sqrt(tf.reduce_sum(tf.square(self.gradient), axis=[1,2,3]))
+			# Expectation over batches
+			gradient_penalty = tf.reduce_mean(tf.square(gradient_norm - 1))
+            self.discriminator_loss = tf.reduce_mean(self.discriminator_fake - self.discriminator_real) + self.args.penalty_hyperparam * gradient_penalty
 
         else:
             self.discriminator_loss = tf.reduce_mean(self.discriminator_fake - self.discriminator_real)
